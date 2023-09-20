@@ -68,8 +68,7 @@ namespace ManagerApartment.Controllers
             return Ok(result);
         }
         //GET: api/Tennant/:Id
-        //[HttpGet("getTennantById")]
-        [HttpGet("api/getTennantById/{Id}")]
+        [HttpGet("getTennantById")]
         public async Task<ActionResult<Tennant>> GetTennantById(int Id)
         {
             if (_context.Tennants == null)
@@ -170,81 +169,81 @@ namespace ManagerApartment.Controllers
         }
 
 
-        public class SignInBody
-        {
-            public string Email { get; set; }
-            public string Password { get; set; }
-        }
+        //public class SignInBody
+        //{
+        //    public string Email { get; set; }
+        //    public string Password { get; set; }
+        //}
 
-        public class SignInResponse
-        {
-            public Account Account { get; set; }
-            public string AccessToken { get; set; }
-        }
+        //public class SignInResponse
+        //{
+        //    public Account Account { get; set; }
+        //    public string AccessToken { get; set; }
+        //}
 
-        // tạo ra token dựa trên account
-        private string GenerateToken(Account account)
-        {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+        //// tạo ra token dựa trên account
+        //private string GenerateToken(Account account)
+        //{
+        //    var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
+        //    var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            // claim này dựa trên email trong tham số account
-            var claims = new List<Claim>
-            {
-                new Claim("email", account.Email)
-            };
+        //    // claim này dựa trên email trong tham số account
+        //    var claims = new List<Claim>
+        //    {
+        //        new Claim("email", account.Email)
+        //    };
 
-            // tạo ra token
-            var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"],
-                _config["Jwt:Audience"],
-                claims,
-                // có thời gian chết, 15 phút
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: credentials
-            );
+        //    // tạo ra token
+        //    var token = new JwtSecurityToken(
+        //        _config["Jwt:Issuer"],
+        //        _config["Jwt:Audience"],
+        //        claims,
+        //        // có thời gian chết, 15 phút
+        //        expires: DateTime.Now.AddMinutes(15),
+        //        signingCredentials: credentials
+        //    );
 
-            return new JwtSecurityTokenHandler().WriteToken(token);
-        }
+        //    return new JwtSecurityTokenHandler().WriteToken(token);
+        //}
 
-        // cho phép nặc danh, ai cũng có thể gọi vào route này mà không cần jwt
-        [AllowAnonymous]
-        [HttpPost("SignIn")]
-        // dòng Task<ActionResult<Account>> hơi dài, nhưng mà ta chỉ cần để ý tới cái trong cùng, tức là Account
-        // hàm này sẽ trả về 1 cái tài khoản
-        public async Task<ActionResult<SignInResponse>> SignIn(SignInBody body)
-        {
-            if (_context.Accounts == null)
-            {
-                return Problem("Entity set 'StarCiContext.Accounts'  is null.");
-            }
+        //// cho phép nặc danh, ai cũng có thể gọi vào route này mà không cần jwt
+        //[AllowAnonymous]
+        //[HttpPost("SignIn")]
+        //// dòng Task<ActionResult<Account>> hơi dài, nhưng mà ta chỉ cần để ý tới cái trong cùng, tức là Account
+        //// hàm này sẽ trả về 1 cái tài khoản
+        //public async Task<ActionResult<SignInResponse>> SignIn(SignInBody body)
+        //{
+        //    if (_context.Accounts == null)
+        //    {
+        //        return Problem("Entity set 'StarCiContext.Accounts'  is null.");
+        //    }
 
-            //Account là cái bảng Account trong db
-            //First Or Default Async là hàm tìm cái đầu tiên trong db, nếu có thì trả về Account, còn nếu không trả về null
-            var result = await _context.Accounts.FirstOrDefaultAsync(
+        //    //Account là cái bảng Account trong db
+        //    //First Or Default Async là hàm tìm cái đầu tiên trong db, nếu có thì trả về Account, còn nếu không trả về null
+        //    var result = await _context.Accounts.FirstOrDefaultAsync(
 
-                // code trong xanh là cây
-                // sẽ kiểm tra mỗi row trong cái bảng Account
-                // nếu thuộc tính email của nó == thuộc tính email trong body + thuộc tính password của nó == thuộc tính password trong body
-                // thì sẽ trả về cái row đó => LINQ 
-                row =>
-                row.Email == body.Email && row.Password == body.Password
-                //
-                );
+        //        // code trong xanh là cây
+        //        // sẽ kiểm tra mỗi row trong cái bảng Account
+        //        // nếu thuộc tính email của nó == thuộc tính email trong body + thuộc tính password của nó == thuộc tính password trong body
+        //        // thì sẽ trả về cái row đó => LINQ 
+        //        row =>
+        //        row.Email == body.Email && row.Password == body.Password
+        //        //
+        //        );
 
-            if (result != null)
-                // trả về mã 200, và với kết quả thành công
-                return Ok(new SignInResponse()
-                {
-                    Account = result,
+        //    if (result != null)
+        //        // trả về mã 200, và với kết quả thành công
+        //        return Ok(new SignInResponse()
+        //        {
+        //            Account = result,
 
-                    // tạo ra accessToken dựa trên tài khoản
-                    AccessToken = GenerateToken(result)
-                });
+        //            // tạo ra accessToken dựa trên tài khoản
+        //            AccessToken = GenerateToken(result)
+        //        });
 
-            // trả về mã lỗi 404
-            return NotFound("The account is not existed");
-        }
+        //    // trả về mã lỗi 404
+        //    return NotFound("The account is not existed");
+        //}
 
     }
 }
